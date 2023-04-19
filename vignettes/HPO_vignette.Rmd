@@ -1,0 +1,194 @@
+---
+title: "HPO_vignette"
+author:
+- name: Erqiang Hu
+  email: 13766876214@163.com
+  affiliation: Department of Bioinformatics, School of Basic Medical Sciences, Southern
+    Medical University
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette: default
+  BiocStyle::html_document:
+    toc: yes
+    toc_float: yes
+vignette: "%\\VignetteIndexEntry{MPO_vignette} %\\VignetteEngine{knitr::rmarkdown}
+  %\\VignetteEncoding{UTF-8}\n"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+```
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## Introduction
+Human Phenotype Ontology (HPO) was developed to create a consistent description of gene 
+products with disease perspectives, and is essential for supporting functional 
+genomics in disease context. Accurate disease descriptions can discover new 
+relationships between genes and disease, and new functions for previous 
+uncharacteried genes and alleles.We have developed the 
+[MPOSE](https://bioconductor.org/packages/MPOSE/) package for semantic 
+similarity analysis and disease enrichment analysis, and `MPOSE` import an 
+Bioconductor package 'MPO.db' to get the relationship(such as parent and child)
+between MPO terms. But `MPO.db`  hasn't been updated for years, and a lot of 
+semantic information is [missing](https://github.com/YuLab-SMU/MPOSE/issues/57). 
+So we developed the new package `HPO.db` for Human Human Phenotype Ontology annotation.
+
+
+```{r setup}
+library(HPO.db)
+```
+
+## Overview
+
+```{r}
+library(AnnotationDbi)
+```
+
+The annotation data comes from 
+https://github.com/DiseaseOntology/HumanDiseaseOntology/tree/main/src/ontology,
+and HPO.db provide these AnnDbBimap object:
+```{r}
+ls("package:HPO.db")
+packageVersion("HPO.db")
+```
+
+You can use `help` function to get their documents: `help(MPOOFFSPRING)`
+```{r}
+toTable(HPOmetadata)
+HPOMAPCOUNTS
+```
+
+
+## Fetch whole MPO terms
+
+In HPO.db, `HPOTERM` represet the whole MPO terms and their names. The users can 
+also get their aliases and synonyms from `HPOALIAS` and `HPOSYNONYM`, 
+respectively.
+
+convert HPOTERM to table
+```{r}
+doterm <- toTable(HPOTERM)
+head(doterm)
+```
+
+
+convert HPOTERM to list
+```{r}
+dotermlist <- as.list(HPOTERM)
+head(dotermlist)
+```
+
+get alias of `HP:0000006`
+```{r}
+doalias <- as.list(HPOALIAS)
+doalias[['HP:0000006']]
+```
+
+get synonym of `HP:0000006`
+```{r}
+dosynonym <- as.list(HPOSYNONYM)
+dosynonym[['HP:0000006']]
+```
+
+
+## Fetch the relationship between MPO terms
+Similar to `HPO.db`, we provide four Bimap objects to represent relationship
+between MPO terms: HPOANCESTOR,HPOPARENTS,HPOOFFSPRING, and HPOCHILDREN.
+
+### HPOANCESTOR
+HPOANCESTOR describes the association between MPO terms and their ancestral 
+terms based on a directed acyclic graph (DAG) defined by the Human Phenotype Ontology.
+We can use `toTable` function in `AnnotationDbi` package to get a two-column 
+data.frame: the first column means the MPO term ids, and the second column means 
+their ancestor terms.
+```{r}
+anc_table <- toTable(HPOANCESTOR)
+head(anc_table)
+```
+
+get ancestor of "HP:0000006"
+```{r}
+anc_list <- AnnotationDbi::as.list(HPOANCESTOR)
+anc_list[["HP:0000006"]]
+```
+
+
+### HPOPARENTS
+HPOPARENTS describes the association between MPO terms and their direct parent 
+terms based on DAG. We can use `toTable` function in `AnnotationDbi` package to 
+get a two-column data.frame: the first column means the MPO term ids, and the 
+second column means their parent terms.
+```{r}
+parent_table <- toTable(HPOPARENTS)
+head(parent_table)
+```
+
+
+get parent term of "HP:0000006"
+```{r}
+parent_list <- AnnotationDbi::as.list(HPOPARENTS)
+parent_list[["HP:0000006"]]
+```
+
+###  HPOOFFSPRING
+HPOPARENTS describes the association between MPO terms and their offspring  
+terms based on DAG. it's the exact opposite of `HPOANCESTOR`, 
+whose usage is similar to it.
+
+get offspring of "HP:0000002"
+```{r}
+off_list <- AnnotationDbi::as.list(HPO.db::HPOOFFSPRING)
+off_list[["HP:0000002"]]
+```
+
+### HPOCHILDREN
+HPOCHILDREN describes the association between MPO terms and their direct 
+children terms based on DAG. it's the exact opposite of `HPOPARENTS`, 
+whose usage is similar to it.
+
+get children of "HP:0000002"
+```{r}
+child_list <- AnnotationDbi::as.list(HPO.db::HPOCHILDREN)
+child_list[["HP:0000002"]]
+```
+
+The HPO.db support the `select()`, `keys()`, `keytypes()`,
+and `columns` interface.
+```{r}
+columns(HPO.db)
+## use hpoid keys
+dokeys <- head(keys(HPO.db))
+res <- select(x = HPO.db, keys = dokeys, keytype = "hpoid", 
+    columns = c("offspring", "term", "parent"))
+head(res)
+## use term keys
+dokeys <- head(keys(HPO.db, keytype = "term"))
+res <- select(x = HPO.db, keys = dokeys, keytype = "term", 
+    columns = c("offspring", "hpoid", "parent"))   
+head(res)
+```
+
+
+## Semantic similarity analysis
+Please go to 
+<https://yulab-smu.top/biomedical-knowledge-mining-book/> for the vignette.
+
+
+## Disease enrichment analysis
+Please go to 
+<https://yulab-smu.top/biomedical-knowledge-mining-book/dose-enrichment.html> 
+for the vignette.
+
+```{r}
+sessionInfo()
+```

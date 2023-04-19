@@ -1,0 +1,30 @@
+Package: HPO.db
+Type: Package
+Title: A set of annotation maps describing the entire Human Human Phenotype Ontology
+Version: 0.99.0
+Authors@R: c(
+      person(given = "Erqiang", family = "Hu", email = "13766876214@163.com", role  = c("aut", "cre"), comment = c(ORCID = "0000-0002-1798-7513")),
+      person("Guangchuang", "Yu", email = "guangchuangyu@gmail.com", role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-6485-8781"))
+      )
+Description: A set of annotation maps describing the entire Human Disease 
+    Ontology assembled using data from DO.
+    Its annotation data comes from 
+    https://github.com/DiseaseOntology/HumanDiseaseOntology/tree/main/src/ontology.
+License: Artistic-2.0
+BugReports: https://github.com/YuLab-SMU/HPO.db/issues
+biocViews: AnnotationData, FunctionalAnnotation
+Encoding: UTF-8
+LazyData: false
+RoxygenNote: 7.2.3
+Depends:
+    R (>= 4.2.0)
+Imports: 
+    AnnotationDbi,
+    methods,
+    utils
+Suggests: 
+    rmarkdown,
+    knitr,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
